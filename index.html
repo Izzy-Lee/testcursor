@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="워케이션 후기 공유 모바일 앱" />
+  <title>워크로그 - 후기 앱</title>
+  <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-soft: rgba(37, 99, 235, 0.1);
+      --border: rgba(15, 23, 42, 0.08);
+      --radius: 16px;
+      --radius-lg: 20px;
+      --tab-h: 80px;
+      --max: min(460px, 100%);
+      --shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
+      --shadow-card:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.07),
+        0 0 0 1px rgba(15, 23, 42, 0.04);
+      --shadow-card-hover:
+        0 2px 8px rgba(15, 23, 42, 0.06),
+        0 16px 40px rgba(15, 23, 42, 0.1),
+        0 0 0 1px rgba(37, 99, 235, 0.08);
+      --font: "NanumSquare", system-ui, sans-serif;
+      --pad-x: clamp(12px, 4vw, 18px);
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: linear-gradient(180deg, #f1f5f9 0%, var(--bg) 32%, #e8eef5 100%);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.5;
+    }
+
+    .app {
+      max-width: var(--max);
+      margin: 0 auto;
+      min-height: 100dvh;
+      background: transparent;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom));
+      box-shadow: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: max(14px, env(safe-area-inset-top)) var(--pad-x) 12px;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar p {
+      margin: 2px 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    main {
+      padding: clamp(12px, 3vw, 18px) var(--pad-x) 0;
+    }
+
+    /* 화면 탭 전환: 활성 화면만 보이게 */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: clamp(0.95rem, 3.5vw, 1.05rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    /* 홈/검색 필터 칩 */
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 10px;
+      margin: 0 0 4px;
+      scrollbar-width: none;
+    }
+    .chip-row::-webkit-scrollbar { display: none; }
+
+    .chip {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .chip.is-active {
+      color: var(--primary);
+      border-color: rgba(37, 99, 235, 0.4);
+      background: var(--primary-soft);
+    }
+
+    /* 후기 카드 리스트 */
+    .review-list {
+      list-style: none;
+      margin: 0;
+      padding: 2px 0 10px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.25s ease, transform 0.2s ease;
+    }
+
+    .card:active {
+      transform: scale(0.992);
+    }
+
+    @media (hover: hover) {
+      .card:hover {
+        box-shadow: var(--shadow-card-hover);
+        transform: translateY(-1px);
+      }
+    }
+
+    .card__media {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      background: #e2e8f0;
+    }
+
+    .card__media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0) 40%, rgba(15, 23, 42, 0.08) 100%);
+      pointer-events: none;
+    }
+
+    .card__media img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card__body {
+      padding: 14px 14px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .card__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card__location {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .card__pin {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      line-height: 1;
+      opacity: 0.92;
+    }
+
+    .card__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 1px;
+    }
+
+    .tag {
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--primary);
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.08));
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(37, 99, 235, 0.15);
+    }
+
+    .card__author {
+      margin: 4px 0 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    /* 검색 */
+    .search-box {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 0.9rem;
+      margin: 0 0 10px;
+      background: var(--surface);
+      font-family: inherit;
+    }
+
+    /* 작성 화면 */
+    .form {
+      display: grid;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 11px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    .field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin: 4px 0 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .preview {
+      display: none;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .flow-box {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .flow-box strong { color: var(--text); }
+
+    /* 프로필 */
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .profile-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .profile-top h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .profile-top p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* 하단 탭 */
+    .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: var(--max);
+      min-height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+      box-sizing: border-box;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: stretch;
+      padding: 0 0 env(safe-area-inset-bottom);
+      z-index: 8;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      overflow: hidden;
+    }
+
+    .tab-btn {
+      border: 0;
+      background: transparent;
+      margin: 0;
+      padding: 10px 4px;
+      min-height: var(--tab-h);
+      font-size: 0.6875rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #d1d5db;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s ease;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .tab-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-btn svg {
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.25;
+      flex-shrink: 0;
+    }
+
+    .tab-btn.active {
+      color: #2563eb;
+      background: transparent;
+    }
+
+    .empty {
+      margin: 6px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* 후기 상세 모달 */
+    .detail-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      /*align-items: flex-start;*/
+      justify-content: center;
+    }
+
+    .detail-modal[hidden] {
+      display: none !important;
+    }
+
+    .detail-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.48);
+    }
+
+    .detail-modal__panel {
+      position: relative;
+      width: 100%;
+      max-width: var(--max);
+      max-height: 100vh;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 18px 18px 0 0;
+      padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
+      box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    .detail-modal__head {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+
+    .detail-modal__close {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .detail-modal__close:active {
+      opacity: 0.85;
+    }
+
+    .detail-modal__panel img {
+      width: 100%;
+      border-radius: var(--radius);
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .detail-modal__panel h2 {
+      margin: 0 0 10px;
+      font-size: 1.125rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.35;
+    }
+
+    .detail-modal__panel .detail-modal__body {
+      margin: 0;
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .card[role="button"] {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .card[role="button"]:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 3px;
+      border-radius: var(--radius-lg);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1>워크<span style="color:#2563eb;">로그</span></h1>
+      <p>워케이션 후기 공유 앱 (모바일)</p>
+    </header>
+
+    <main>
+      <!-- 홈: 필터 칩 + 카드형 후기 리스트 -->
+      <section id="screen-home" class="screen active" aria-labelledby="home-title">
+        <h2 id="home-title" class="section-title">홈 · 추천 후기</h2>
+        <div id="homeChips" class="chip-row" aria-label="홈 필터"></div>
+        <ul id="homeList" class="review-list"></ul>
+      </section>
+
+      <!-- 검색: 검색창 + 필터 + 리스트 -->
+      <section id="screen-search" class="screen" aria-labelledby="search-title">
+        <h2 id="search-title" class="section-title">검색</h2>
+        <input id="searchInput" class="search-box" type="search" placeholder="장소, 제목, 태그로 검색" />
+        <div id="searchChips" class="chip-row" aria-label="검색 필터"></div>
+        <ul id="searchList" class="review-list"></ul>
+        <p id="searchEmpty" class="empty" style="display:none;">검색 결과가 없습니다.</p>
+      </section>
+
+      <!-- 작성: 사진 업로드, 제목, 본문, 위치, 태그 -->
+      <section id="screen-write" class="screen" aria-labelledby="write-title">
+        <h2 id="write-title" class="section-title">작성</h2>
+
+        <!--
+          작성 흐름
+          1) 사진 선택
+          2) 제목/본문 입력
+          3) 위치 선택
+          4) 태그 입력(쉼표 구분)
+          5) 등록 버튼 클릭 -> 더미 데이터에 추가
+        -->
+        <form id="writeForm" class="form">
+          <div class="field">
+            <label for="photoInput">사진 업로드</label>
+            <input id="photoInput" type="file" accept="image/*" />
+            <p class="hint">jpg, png 등 이미지 파일 1개를 선택하세요.</p>
+            <img id="photoPreview" class="preview" alt="업로드 미리보기" />
+          </div>
+
+          <div class="field">
+            <label for="titleInput">제목</label>
+            <input id="titleInput" type="text" placeholder="예) 제주 애월 3일 워케이션 후기" required />
+          </div>
+
+          <div class="field">
+            <label for="contentInput">본문</label>
+            <textarea id="contentInput" placeholder="후기를 간단히 작성해 주세요." required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="locationInput">위치 선택</label>
+            <select id="locationInput" required>
+              <option value="">위치를 선택하세요</option>
+              <option>제주 애월</option>
+              <option>부산 해운대</option>
+              <option>강릉 경포</option>
+              <option>발리 우붓</option>
+              <option>포르투갈 포르투</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tagsInput">태그 입력</label>
+            <input id="tagsInput" type="text" placeholder="예) 워케이션, 카페, 국내" />
+            <p class="hint">쉼표(,)로 구분해서 입력하면 태그가 여러 개 생성됩니다.</p>
+          </div>
+
+          <button class="btn btn-primary" type="submit">후기 등록</button>
+        </form>
+
+        <div class="flow-box">
+          <strong>작성 후 이동 흐름:</strong><br />
+          등록 성공 -> 홈 탭으로 자동 이동 -> 새 카드가 맨 위에 보임
+        </div>
+      </section>
+
+      <!-- 프로필: 프로필 정보 + 내 후기 리스트 -->
+      <section id="screen-profile" class="screen" aria-labelledby="profile-title">
+        <h2 id="profile-title" class="section-title">프로필</h2>
+        <article class="profile-card">
+          <div class="profile-top">
+            <div class="avatar">YJ</div>
+            <div>
+              <h3>youngjilee</h3>
+              <p>디자인과 여행을 좋아하는 워케이션 기록러</p>
+            </div>
+          </div>
+        </article>
+
+        <h3 class="section-title" style="font-size:0.88rem;">내 후기</h3>
+        <ul id="profileList" class="review-list"></ul>
+        <p id="profileEmpty" class="empty" style="display:none;">아직 작성한 후기가 없습니다.</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- 하단 탭: 홈 / 검색 / 작성 / 프로필 -->
+  <nav class="tabs" aria-label="하단 탭 네비게이션">
+    <button class="tab-btn active" data-tab="home" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" />
+      </svg>
+      홈
+    </button>
+    <button class="tab-btn" data-tab="search" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+      </svg>
+      검색
+    </button>
+    <button class="tab-btn" data-tab="write" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      작성
+    </button>
+    <button class="tab-btn" data-tab="profile" type="button">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" />
+      </svg>
+      프로필
+    </button>
+  </nav>
+
+  <div id="detailModal" class="detail-modal" hidden aria-hidden="true">
+    <div class="detail-modal__backdrop" data-close-modal></div>
+    <div class="detail-modal__panel" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <div class="detail-modal__head">
+        <button type="button" class="detail-modal__close" id="detailModalClose">닫기</button>
+      </div>
+      <img id="detailModalImg" src="" alt="" />
+      <h2 id="detailModalTitle"></h2>
+      <p id="detailModalBody" class="detail-modal__body"></p>
+    </div>
+  </div>
+
+  <!-- 후기 원본 배열: reviews-data.js 에서 로드 -->
+  <script src="reviews-data.js"></script>
+  <script>
+    // ----------------------------
+    // 1) 데이터: 시드 복사 후 앱에서 수정·추가 (unshift 등)
+    // ----------------------------
+    let reviews = REVIEW_SEED_DATA.map(function (r) {
+      return {
+        id: r.id,
+        title: r.title,
+        location: r.location,
+        tags: r.tags.slice(),
+        author: r.author,
+        image: r.image,
+        content: r.content,
+      };
+    });
+
+    const myUser = "youngjilee";
+    let allTags = ["전체", ...new Set(reviews.flatMap(function (r) { return r.tags; }))];
+
+    // ----------------------------
+    // 2) 공통 유틸
+    // ----------------------------
+    function cardHTML(r) {
+      const tags = r.tags.map(t => `<span class="tag">#${t}</span>`).join("");
+      return `
+        <li class="card" data-review-id="${r.id}" role="button" tabindex="0" aria-label="${r.title} 상세 보기">
+          <div class="card__media">
+            <img src="${r.image}" alt="${r.title}" loading="lazy" width="800" height="500" />
+          </div>
+          <div class="card__body">
+            <h3 class="card__title">${r.title}</h3>
+            <p class="card__location">
+              <span class="card__pin" aria-hidden="true">📍</span>
+              ${r.location}
+            </p>
+            <div class="card__tags">${tags}</div>
+            <p class="card__author">@${r.author}</p>
+          </div>
+        </li>
+      `;
+    }
+
+    function renderList(targetId, list) {
+      const el = document.getElementById(targetId);
+      el.innerHTML = list.map(cardHTML).join("");
+    }
+
+    function renderChips(containerId, onClick) {
+      const box = document.getElementById(containerId);
+      box.innerHTML = allTags
+        .map((tag, i) => `<button type="button" class="chip ${i === 0 ? "is-active" : ""}" data-tag="${tag}">${tag}</button>`)
+        .join("");
+
+      box.addEventListener("click", (e) => {
+        const btn = e.target.closest(".chip");
+        if (!btn) return;
+        [...box.querySelectorAll(".chip")].forEach(c => c.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        onClick(btn.dataset.tag);
+      });
+    }
+
+    // ----------------------------
+    // 3) 홈 화면
+    // ----------------------------
+    let homeTag = "전체";
+
+    function getHomeData() {
+      if (homeTag === "전체") return reviews;
+      return reviews.filter(r => r.tags.includes(homeTag));
+    }
+
+    function renderHome() {
+      renderList("homeList", getHomeData());
+    }
+
+    renderChips("homeChips", (tag) => {
+      homeTag = tag;
+      renderHome();
+    });
+
+    // ----------------------------
+    // 4) 검색 화면
+    // ----------------------------
+    let searchTag = "전체";
+    let query = "";
+
+    function getSearchData() {
+      return reviews.filter((r) => {
+        const byTag = searchTag === "전체" || r.tags.includes(searchTag);
+        const q = query.trim().toLowerCase();
+        const byText = !q ||
+          r.title.toLowerCase().includes(q) ||
+          r.location.toLowerCase().includes(q) ||
+          r.tags.join(" ").toLowerCase().includes(q) ||
+          r.author.toLowerCase().includes(q);
+        return byTag && byText;
+      });
+    }
+
+    function renderSearch() {
+      const data = getSearchData();
+      renderList("searchList", data);
+      document.getElementById("searchEmpty").style.display = data.length ? "none" : "block";
+    }
+
+    renderChips("searchChips", (tag) => {
+      searchTag = tag;
+      renderSearch();
+    });
+
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      query = e.target.value;
+      renderSearch();
+    });
+
+    // ----------------------------
+    // 5) 작성 화면
+    // ----------------------------
+    const photoInput = document.getElementById("photoInput");
+    const photoPreview = document.getElementById("photoPreview");
+    let uploadedImageData = "";
+
+    photoInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        uploadedImageData = reader.result;
+        photoPreview.src = uploadedImageData;
+        photoPreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("writeForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("titleInput").value.trim();
+      const content = document.getElementById("contentInput").value.trim();
+      const location = document.getElementById("locationInput").value;
+      const tagsRaw = document.getElementById("tagsInput").value;
+
+      const tags = tagsRaw
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const newReview = {
+        id: Date.now(),
+        title,
+        location,
+        tags: tags.length ? tags : ["후기"],
+        author: myUser,
+        image: uploadedImageData || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80",
+        content
+      };
+
+      // 새 글은 맨 위에 추가
+      reviews.unshift(newReview);
+
+      // 태그 목록 갱신 (새 태그가 들어올 수 있으므로)
+      const nextTags = ["전체", ...new Set(reviews.flatMap(r => r.tags))];
+      allTags.length = 0;
+      allTags.push(...nextTags);
+      renderChips("homeChips", (tag) => { homeTag = tag; renderHome(); });
+      renderChips("searchChips", (tag) => { searchTag = tag; renderSearch(); });
+
+      // 폼 초기화
+      e.target.reset();
+      uploadedImageData = "";
+      photoPreview.style.display = "none";
+      photoPreview.src = "";
+
+      // 화면 다시 렌더
+      renderHome();
+      renderSearch();
+      renderProfile();
+
+      // 등록 후 홈으로 이동 (사용자 흐름)
+      switchTab("home");
+      alert("후기가 등록되었습니다. 홈에서 확인해 보세요!");
+    });
+
+    // ----------------------------
+    // 6) 프로필 화면
+    // ----------------------------
+    function renderProfile() {
+      const mine = reviews.filter(r => r.author === myUser);
+      renderList("profileList", mine);
+      document.getElementById("profileEmpty").style.display = mine.length ? "none" : "block";
+    }
+
+    // ----------------------------
+    // 7) 하단 탭 화면 전환
+    // ----------------------------
+    const tabs = document.querySelectorAll(".tab-btn");
+    const screens = {
+      home: document.getElementById("screen-home"),
+      search: document.getElementById("screen-search"),
+      write: document.getElementById("screen-write"),
+      profile: document.getElementById("screen-profile")
+    };
+
+    function switchTab(name) {
+      Object.values(screens).forEach((s) => s.classList.remove("active"));
+      screens[name].classList.add("active");
+      tabs.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    }
+
+    tabs.forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    // ----------------------------
+    // 8) 후기 상세 모달
+    // ----------------------------
+    const detailModal = document.getElementById("detailModal");
+    const detailModalImg = document.getElementById("detailModalImg");
+    const detailModalTitle = document.getElementById("detailModalTitle");
+    const detailModalBody = document.getElementById("detailModalBody");
+    const detailModalClose = document.getElementById("detailModalClose");
+
+    function findReviewById(id) {
+      return reviews.find((x) => x.id === id);
+    }
+
+    function openDetailModal(review) {
+      detailModalImg.src = review.image;
+      detailModalImg.alt = review.title;
+      detailModalTitle.textContent = review.title;
+      detailModalBody.textContent = review.content || "";
+      detailModal.removeAttribute("hidden");
+      detailModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      detailModalClose.focus();
+    }
+
+    function closeDetailModal() {
+      detailModal.setAttribute("hidden", "");
+      detailModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      detailModalImg.src = "";
+    }
+
+    document.querySelector(".app").addEventListener("click", (e) => {
+      const card = e.target.closest("ul.review-list .card");
+      if (!card) return;
+      const id = Number(card.dataset.reviewId);
+      const review = findReviewById(id);
+      if (review) openDetailModal(review);
+    });
+
+    document.querySelector(".app").addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const card = e.target.closest("ul.review-list .card");
+      if (!card) return;
+      e.preventDefault();
+      const id = Number(card.dataset.reviewId);
+      const review = findReviewById(id);
+      if (review) openDetailModal(review);
+    });
+
+    detailModalClose.addEventListener("click", closeDetailModal);
+    detailModal.querySelector("[data-close-modal]").addEventListener("click", closeDetailModal);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !detailModal.hasAttribute("hidden")) closeDetailModal();
+    });
+
+    // 초기 렌더
+    renderHome();
+    renderSearch();
+    renderProfile();
+  </script>
+</body>
+</html>
