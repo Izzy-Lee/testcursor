@@ -6,8 +6,8 @@ const REVIEW_SEED_DATA = [
     location: "제주 애월",
     tags: ["워케이션", "국내", "카페"],
     author: "youngjilee",
-    image: "img/Gemini_Generated_Image_w91n5zw91n5zw91n.png",
-    content: "오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요.",
+    image: "/img/Gemini_Generated_Image_w91n5zw91n5zw91n.png",
+    content: "오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요.오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요",
   },
   {
     id: 2,
@@ -16,7 +16,7 @@ const REVIEW_SEED_DATA = [
     tags: ["주말", "바다"],
     author: "jina",
     image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=900&q=80",
-    content: "교통이 편하고 주변 식당이 많아서 짧은 체류에 좋았습니다.",
+    content: "교통이 편하고 주변 식당이 많아서 짧은 체류에 좋았습니다. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요",
   },
   {
     id: 3,
@@ -24,8 +24,8 @@ const REVIEW_SEED_DATA = [
     location: "발리 우붓",
     tags: ["장기체류", "풀빌라", "해외"],
     author: "alex",
-    image: "img/Gemini_Generated_Image_2q9lpa2q9lpa2q9l.png",
-    content: "시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
+    image: "/img/Gemini_Generated_Image_2q9lpa2q9lpa2q9l.png",
+    content: "시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
   },
   {
     id: 4,
@@ -33,8 +33,8 @@ const REVIEW_SEED_DATA = [
     location: "강릉 경포",
     tags: ["국내", "해변"],
     author: "youngjilee",
-    image: "img/Gemini_Generated_Image_5j4r45j4r45j4r45.png",
-    content: "오전에 집중 근무하고 오후에 산책하는 패턴이 잘 맞았어요.",
+    image: "/img/Gemini_Generated_Image_5j4r45j4r45j4r45.png",
+    content: "오전에 집중 근무하고 오후에 산책하는 패턴이 잘 맞았어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
   },
   {
     id: 1,
@@ -42,8 +42,8 @@ const REVIEW_SEED_DATA = [
     location: "강원 강릉",
     tags: ["워케이션", "국내", "카페"],
     author: "youngjilee",
-    image: "img/Gemini_Generated_Image_tat46rtat46rtat4.png",
-    content: "오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요.",
+    image: "/img/Gemini_Generated_Image_tat46rtat46rtat4.png",
+    content: "오전에는 해변 산책, 오후에는 카페에서 집중 작업했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
   },
   {
     id: 2,
@@ -51,8 +51,8 @@ const REVIEW_SEED_DATA = [
     location: "인천 영종도",
     tags: ["주말", "바다"],
     author: "jina",
-    image: "img/Gemini_Generated_Image_5tbbor5tbbor5tbb.png",
-    content: "교통이 편하고 주변 식당이 많아서 짧은 체류에 좋았습니다.",
+    image: "/img/Gemini_Generated_Image_5tbbor5tbbor5tbb.png",
+    content: "교통이 편하고 주변 식당이 많아서 짧은 체류에 좋았습니다. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
   },
   {
     id: 3,
@@ -60,8 +60,8 @@ const REVIEW_SEED_DATA = [
     location: "푸켓",
     tags: ["장기체류", "풀빌라", "해외"],
     author: "alex",
-    image: "img/Gemini_Generated_Image_7nbsz57nbsz57nbs.png",
-    content: "시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
+    image: "/img/Gemini_Generated_Image_7nbsz57nbsz57nbs.png",
+    content: "시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요. 시차 적응, 와이파이 대체 수단, 코워킹 비교를 정리했어요.",
   },
   {
     id: 4,
@@ -69,7 +69,7 @@ const REVIEW_SEED_DATA = [
     location: "경주",
     tags: ["국내", "도심"],
     author: "youngjilee",
-    image: "img/Gemini_Generated_Image_mwnyj3mwnyj3mwny.png",
+    image: "/img/Gemini_Generated_Image_mwnyj3mwnyj3mwny.png",
     content: "오전에 집중 근무하고 오후에 산책하는 패턴이 잘 맞았어요.",
   },
 ];
